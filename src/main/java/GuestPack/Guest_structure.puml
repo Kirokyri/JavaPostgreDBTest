@@ -1,0 +1,195 @@
+@startuml
+
+/' diagram meta data start
+config=StructureConfiguration;
+{
+  "projectClassification": {
+    "searchMode": "OpenProject", // OpenProject, AllProjects
+    "includedProjects": "",
+    "pathEndKeywords": "*.impl",
+    "isClientPath": "",
+    "isClientName": "",
+    "isTestPath": "",
+    "isTestName": "",
+    "isMappingPath": "",
+    "isMappingName": "",
+    "isDataAccessPath": "",
+    "isDataAccessName": "",
+    "isDataStructurePath": "",
+    "isDataStructureName": "",
+    "isInterfaceStructuresPath": "",
+    "isInterfaceStructuresName": "",
+    "isEntryPointPath": "",
+    "isEntryPointName": "",
+    "treatFinalFieldsAsMandatory": false
+  },
+  "graphRestriction": {
+    "classPackageExcludeFilter": "",
+    "classPackageIncludeFilter": "",
+    "classNameExcludeFilter": "",
+    "classNameIncludeFilter": "",
+    "methodNameExcludeFilter": "",
+    "methodNameIncludeFilter": "",
+    "removeByInheritance": "", // inheritance/annotation based filtering is done in a second step
+    "removeByAnnotation": "",
+    "removeByClassPackage": "", // cleanup the graph after inheritance/annotation based filtering is done
+    "removeByClassName": "",
+    "cutMappings": false,
+    "cutEnum": true,
+    "cutTests": true,
+    "cutClient": true,
+    "cutDataAccess": false,
+    "cutInterfaceStructures": false,
+    "cutDataStructures": false,
+    "cutGetterAndSetter": true,
+    "cutConstructors": true
+  },
+  "graphTraversal": {
+    "forwardDepth": 6,
+    "backwardDepth": 6,
+    "classPackageExcludeFilter": "",
+    "classPackageIncludeFilter": "",
+    "classNameExcludeFilter": "",
+    "classNameIncludeFilter": "",
+    "methodNameExcludeFilter": "",
+    "methodNameIncludeFilter": "",
+    "hideMappings": false,
+    "hideDataStructures": false,
+    "hidePrivateMethods": true,
+    "hideInterfaceCalls": true, // indirection: implementation -> interface (is hidden) -> implementation
+    "onlyShowApplicationEntryPoints": false, // root node is included
+    "useMethodCallsForStructureDiagram": "ForwardOnly" // ForwardOnly, BothDirections, No
+  },
+  "details": {
+    "aggregation": "GroupByClass", // ByClass, GroupByClass, None
+    "showClassGenericTypes": true,
+    "showMethods": true,
+    "showMethodParameterNames": true,
+    "showMethodParameterTypes": true,
+    "showMethodReturnType": true,
+    "showPackageLevels": 2,
+    "showDetailedClassStructure": true
+  },
+  "rootClass": "GuestPack.Guest",
+  "extensionCallbackMethod": "" // qualified.class.name#methodName - signature: public static String method(String)
+}
+diagram meta data end '/
+
+
+
+digraph g {
+    rankdir="TB"
+    splines=polyline
+    
+
+'nodes 
+subgraph cluster_1115650033 { 
+   	label=GuestPack
+	labeljust=l
+	fillcolor="#ececec"
+	style=filled
+   
+   AccessList1115650033[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)AccessList</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+   accessList: Map&lt;String, List&lt;Schedule&gt;&gt; [0..*]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ add(place: String, scheduleList: List&lt;Schedule&gt;)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ add(place: String, schedule: Schedule)</TD></TR>
+<TR><TD ALIGN="LEFT" >+ getSchedule(place: String, day: DayOfWeek): Schedule</TD></TR>
+<TR><TD ALIGN="LEFT" >+ getSchedule(place: String): List&lt;Schedule&gt;</TD></TR>
+<TR><TD ALIGN="LEFT" >+ print()</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+AccessPeriod1115650033[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)AccessPeriod</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   dtf: DateTimeFormatter [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   end: LocalDateTime [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >+   start: LocalDateTime [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ print()</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Guest1115650033[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Guest</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   accessList: AccessList [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   accessPeriod: AccessPeriod [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   id: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   passNumber: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   passport: Passport [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ print()</TD></TR>
+<TR><TD ALIGN="LEFT" >+ shortPrint()</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Passport1115650033[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Passport</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   birthDate: LocalDate [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   birthPlace: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   code: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   dtf: DateTimeFormatter [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   issueDate: LocalDate [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   name: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   number: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   patronymic: String [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   surname: String [0..1]</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >+ print()</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+
+Schedule1115650033[
+	label=<<TABLE BORDER="1" CELLBORDER="0" CELLPADDING="4" CELLSPACING="0">
+<TR><TD ALIGN="LEFT" >(C)Schedule</TD></TR>
+<HR/>
+<TR><TD ALIGN="LEFT" >-   availability: boolean [1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   day: DayOfWeek [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   dtf: DateTimeFormatter [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   endTime: LocalTime [0..1]</TD></TR>
+<TR><TD ALIGN="LEFT" >-   startTime: LocalTime [0..1]</TD></TR>
+</TABLE>>
+	style=filled
+	margin=0
+	shape=plaintext
+	fillcolor="#FFFFFF"
+];
+} 
+
+'edges    
+AccessList1115650033 -> Schedule1115650033[label="accessList
+[0..*]"];
+Guest1115650033 -> AccessList1115650033[label="accessList
+[0..1]"];
+Guest1115650033 -> AccessPeriod1115650033[label="accessPeriod
+[0..1]"];
+Guest1115650033 -> Passport1115650033[label="passport
+[0..1]"];
+    
+}
+@enduml
