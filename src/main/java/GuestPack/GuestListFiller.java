@@ -81,7 +81,7 @@ public class GuestListFiller
         Passport passport = new Passport("17340001", "01-01-2021", "31",
                 "Ivanov", "Ivan", "Ivanovich", "01-01-1993", "Moskva");
         Passport passport1 = new Passport("3213001", "05-07-2018", "11",
-                "Panov", "Aleksander", "Vasilievich", "05-06-1999", "Engels");
+                "Shmigor", "Igor", "Vasilievich", "05-06-1999", "Engels");
         Passport passport2 = new Passport("56784", "11-12-2012", "12",
                 "Andreev", "Dmitry", "Dmitrievich", "31-03-1985", "Saratov");
         Passport passport3 = new Passport("989898", "02-02-2022", "31",
@@ -106,7 +106,7 @@ public class GuestListFiller
         AccessPeriod accessPeriod1 = new AccessPeriod("01-07-2023 12:00", "14-07-2023 12:00");
         AccessPeriod accessPeriod2 = new AccessPeriod("04-07-2023 12:00", "09-07-2023 12:00");
         AccessPeriod accessPeriod3 = new AccessPeriod("05-06-2023 12:00", "05-07-2023 12:00");
-        AccessPeriod accessPeriod4 = new AccessPeriod("01-05-2023 00:00", "02-06-2023 00:00");
+        AccessPeriod accessPeriod4 = new AccessPeriod("01-05-2023 00:00", "09-06-2023 00:00");
         Guest guest1 = new Guest("1", "137", passport, standardAccessList, accessPeriod1);
         Guest guest2 = new Guest("2", "134", passport1, standardAccessList, accessPeriod2);
         Guest guest3 = new Guest("3", "135", passport2, VIPAccessList, accessPeriod3);

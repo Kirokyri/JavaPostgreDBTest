@@ -74,7 +74,12 @@ public class Schedule
     {
         this.availability = availability;
     }
-
+/*
+    public boolean isNightShift()
+    {
+        return this.getEndTime().isBefore(this.getStartTime());
+    }
+*/
     @Override
     public boolean equals(Object obj)
     {

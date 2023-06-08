@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.postgresql.util.PGobject;
 
-import java.io.File;
 import java.sql.*;
 import java.time.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -345,6 +345,44 @@ class DatabaseQueries{
         }
     }
 
+    public static void guestsStandard()
+    {
+        try (Connection connection = DatabaseConnector.getConnection();
+             Statement statement = connection.createStatement()) {
+            String query = "SELECT Guest.id as gid, " +
+                    "Guest.passnumber as ps, passport.name as name, " +
+                    "passport.surname as surname, " +
+                    "accesslist.accesslist as al " +
+                    "FROM guest, passport, accesslist " +
+                    "WHERE guest.passportid = passport.id " +
+                    "AND guest.accesslistid = accesslist.id";
+            //System.out.println(query);
+            ResultSet rs = statement.executeQuery(query);
+            System.out.println("_____________________________________________________________________________");
+            System.out.println("Гости с обычным типом допуска.");
+            ObjectMapper objectMapper = JSONWriter.objectMapper;
+            while(rs.next())
+            {
+                String id = rs.getString("gid");
+                String passnumber = rs.getString("ps");
+                String name = rs.getString("name");
+                String surname = rs.getString("surname");
+                PGobject jsonObject = rs.getObject("al", PGobject.class);
+                Map<String, List<Schedule>> accessMap = objectMapper.readValue(jsonObject.toString(), new TypeReference<Map<String, List<Schedule>>>(){});
+                AccessList accessList = new AccessList(accessMap);
+                //accessList.print();
+                if(accessList.equals(GuestListFiller.standardAccessList))
+                {
+                    System.out.println("ID: " + id + " Passnumber: " + passnumber);
+                    System.out.println(name + " " + surname);
+                    System.out.println("______________");
+                }
+            }
+        } catch (SQLException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void guestsWithSoonAccessExpiration()
     {
         LocalDate date = LocalDate.now();
@@ -386,39 +424,93 @@ class DatabaseQueries{
         }
     }
 
-    public static void placesToVisitAtExactDayTime(DayOfWeek day, LocalTime time)
-    {
-        LocalDate date = LocalDate.now();
+    public static void placesToVisitAtExactDayTime(Integer id, DayOfWeek day, LocalTime time) {
         try (Connection connection = DatabaseConnector.getConnection();
              Statement statement = connection.createStatement()) {
-            String query = "SELECT Guest.id as gid, " +
-                    "Guest.passnumber as ps, passport.name as name, " +
-                    "passport.surname as surname," +
+            String query = "SELECT accesslist.accesslist as al " +
+                    "FROM guest, accesslist " +
+                    "WHERE guest.id = " + id + " " +
+                    "AND guest.accesslistid = accesslist.id";
+            //System.out.println(query);
+            ResultSet rs = statement.executeQuery(query);
+            System.out.println("_____________________________________________________________________________");
+            System.out.println("Места для посещения.");
+            ObjectMapper objectMapper = JSONWriter.objectMapper;
+            while (rs.next()) {
+                PGobject jsonObject = rs.getObject("al", PGobject.class);
+                Map<String, List<Schedule>> accessMap = objectMapper.readValue(jsonObject.toString(), new TypeReference<>() {
+                });
+                AccessList accessList = new AccessList(accessMap);
+                Map<String, LocalTime> result = new HashMap<>();
+                for (String key : accessMap.keySet()) {
+                    List<Schedule> scheduleList = accessMap.get(key);
+                    for (Schedule schedule : scheduleList) {
+                        if (!schedule.getAvailability())
+                            continue;
+
+                        if (schedule.getDay().equals(day))
+                            if (!schedule.getEndTime().isBefore(schedule.getStartTime())) {
+                                if (time.isAfter(schedule.getStartTime()) && time.isBefore(schedule.getEndTime()))
+                                    result.put(key, schedule.getEndTime());
+                            } else {
+                                if (time.isAfter(schedule.getStartTime()) && time.isBefore(LocalTime.parse("23:59"))
+                                        || time.isAfter(LocalTime.parse("00:00")) && time.isBefore(schedule.getEndTime()))
+                                    result.put(key, schedule.getEndTime());
+                            }
+                    }
+                }
+
+                System.out.println("Вы можете попасть в следующие места:");
+                for (String key : result.keySet()) {
+                    System.out.println(key + " до " + result.get(key));
+                }
+                System.out.println("______________");
+            }
+        }
+         catch (SQLException | JsonProcessingException e) {
+             e.printStackTrace();
+         }
+    }
+
+    public static void getGuestByCredentials(Integer id, String passNumber)
+    {
+        try (Connection connection = DatabaseConnector.getConnection();
+             Statement statement = connection.createStatement()) {
+            String query = "SELECT passport.name as name, " +
+                    "passport.surname as surname, " +
+                    "passport.patronymic as patronymic, " +
+                    "passport.birthdate as bd, " +
+                    "passport.number as number, " +
+                    "passport.code as code," +
+                    "passport.issuedate as date, " +
                     "accessperiod.start as st, " +
                     "accessperiod.end as ed " +
                     "FROM guest, passport, accessperiod " +
-                    "WHERE guest.passportid = passport.id " +
+                    "WHERE guest.id = " + id + " AND guest.passnumber = '" + passNumber + "' " +
+                    "AND guest.passportid = passport.id " +
                     "AND guest.accessperiodid = accessperiod.id";
             //System.out.println(query);
             ResultSet rs = statement.executeQuery(query);
             System.out.println("_____________________________________________________________________________");
-            System.out.println("Гости, у которых скоро закончится пропуск.");
-            while(rs.next())
-            {
-                String id = rs.getString("gid");
-                String passnumber = rs.getString("ps");
+            System.out.println("Данные о госте с id = " + id + " и passNumber = " + passNumber);
+            while(rs.next()) {
                 String name = rs.getString("name");
                 String surname = rs.getString("surname");
+                String patronymic = rs.getString("patronymic");
+                String birthdate = rs.getString("bd");
+                String number = rs.getString("number");
+                String issueDate = rs.getString("date");
                 LocalDate start = LocalDateTime.parse(rs.getString("st")).toLocalDate();
                 LocalDate end = LocalDateTime.parse(rs.getString("ed")).toLocalDate();
 
-                if(date.plusDays(1).equals(end) || date.plusDays(2).equals(end))
-                {
-                    System.out.println("ID: " + id + " Passnumber: " + passnumber);
-                    System.out.println(name + " " + surname);
-                    System.out.println(start + " - " + end);
-                    System.out.println("______________");
-                }
+                System.out.println("ID: " + id + " Passnumber: " + passNumber);
+                System.out.println(surname + " " + name + " " + patronymic);
+                System.out.println("Born: " + birthdate);
+                System.out.println("Passport number: " + number);
+                System.out.println("Passport issue date: " + issueDate);
+                System.out.println("Visiting: " + start + " - " + end);
+                System.out.println("______________");
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -455,7 +547,10 @@ public class App
         DatabaseQueries.guestsBornExactYear(1999, 0);
         DatabaseQueries.guestsWithAccessAtExactDate("2023-05-29");
         DatabaseQueries.guestsFromExactCity("Saratov");
+        DatabaseQueries.guestsStandard();
         DatabaseQueries.guestsVIP();
         DatabaseQueries.guestsWithSoonAccessExpiration();
+        DatabaseQueries.placesToVisitAtExactDayTime(3, DayOfWeek.FRIDAY, LocalTime.parse("21:00"));
+        DatabaseQueries.getGuestByCredentials(2, "134");
     }
 }
